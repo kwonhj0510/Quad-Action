@@ -144,7 +144,7 @@ public class Player : MonoBehaviour
         if (fDown && isFireReady && !isDodge && !isSwap) 
         {
             equipWeapon.Use();
-            anim.SetTrigger(equipWeapon.type == Weapon.Type.Melee ?"doSwing" : "doShot");
+            anim.SetTrigger(equipWeapon.type == Weapon.Type.Melee ? "doSwing" : "doShot");
             fireDelay = 0;
         }
 

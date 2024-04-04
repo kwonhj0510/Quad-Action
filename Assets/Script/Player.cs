@@ -291,7 +291,7 @@ public class Player : MonoBehaviour
         isBorder = Physics.Raycast(transform.position, transform.forward, 5, LayerMask.GetMask("Wall"));
     }
 
-    private void FixedUpdate()
+    void FixedUpdate()
     {
         FreezeRotatioin();
         StopToWall();

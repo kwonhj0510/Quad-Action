@@ -10,7 +10,9 @@ public class Enemy : MonoBehaviour
     public int maxHealth;
     public int curHealth;
     public Transform target;
+    public BoxCollider meleeArea;
     public bool isChase;
+    public bool isAttack;
 
     Rigidbody rigid;
     BoxCollider boxCollider;
@@ -39,14 +41,29 @@ public class Enemy : MonoBehaviour
 
     void Update()
     {
-        if(isChase)
+        if(nav.enabled)
+        {
             nav.SetDestination(target.position);
+            nav.isStopped = !isChase;
+        }
     }
-    
+
+    void Targeting()
+    {
+        float targetRadius = 1.5f;
+        float targetRange = 3f;
+
+        RaycastHit[] raytHits =
+            Physics.SphereCastAll(transform.position,
+                                   targetRadius,
+                                   transform.forward, targetRange,
+                                   LayerMask.GetMask("Player"));
+    }
+
     void FixedUpdate()
     {
-        FreezeVelocity();
-        
+        Targeting();
+        FreezeVelocity();        
     }
 
     void FreezeVelocity()

@@ -24,6 +24,9 @@ public class Player : MonoBehaviour
     public int maxHealth;
     public int maxHasGrenades;
 
+    public Material bodyMaterial;
+    public Material headMaterial;
+
     public float jumpPower;
     bool wDown;
     bool jDown;
@@ -41,13 +44,14 @@ public class Player : MonoBehaviour
     bool isReload;
     bool isFireReady = true;
     bool isBorder;
+    bool isDamage;
     Vector3 moveVec;
     Vector3 dodgeVec;
     
 
     Rigidbody rigid;
-
     Animator anim;
+    MeshRenderer[] meshs;
 
     GameObject nearObject;
     Weapon equipWeapon;
@@ -57,6 +61,7 @@ public class Player : MonoBehaviour
     {
         anim = GetComponentInChildren<Animator>();
         rigid = GetComponent<Rigidbody>();
+        meshs = GetComponentsInChildren<MeshRenderer>();
     }
 
     // Update is called once per frame
@@ -341,6 +346,37 @@ public class Player : MonoBehaviour
                     break;
             }
             Destroy(other.gameObject);
+        }
+        else if (other.tag == "EnemyBullet")
+        { 
+            if(!isDamage)
+            {
+                Bullet enemyBullet = other.GetComponent<Bullet>();
+                health -= enemyBullet.damage;
+                StartCoroutine(OnDamage());
+            }            
+        }
+    }
+
+    IEnumerator OnDamage()
+    {
+        isDamage = true;
+        foreach (MeshRenderer mesh in meshs)
+        {
+            if (mesh.name == "Hand" || mesh.name == "Head") // 팔과 머리에 해당하는 메테리얼만 변경
+            {
+                mesh.material.color = Color.blue; // damagedMaterial은 파란색 메테리얼을 가정
+            }
+        }
+        yield return new WaitForSeconds(1f);
+
+        isDamage = false;
+        foreach (MeshRenderer mesh in meshs)
+        {
+            if (mesh.name == "Hand" || mesh.name == "Head") // 팔과 머리에 해당하는 메테리얼만 변경
+            {
+                mesh.material.color = Color.white; // defaultMaterial은 기본 색상 메테리얼을 가정
+            }
         }
     }
 

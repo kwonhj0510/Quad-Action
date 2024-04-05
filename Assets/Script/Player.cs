@@ -353,6 +353,8 @@ public class Player : MonoBehaviour
             {
                 Bullet enemyBullet = other.GetComponent<Bullet>();
                 health -= enemyBullet.damage;
+                if (other.GetComponent<Bullet>() != null)
+                    Destroy(other.gameObject);
                 StartCoroutine(OnDamage());
             }            
         }
@@ -363,20 +365,14 @@ public class Player : MonoBehaviour
         isDamage = true;
         foreach (MeshRenderer mesh in meshs)
         {
-            if (mesh.name == "Hand" || mesh.name == "Head") // 팔과 머리에 해당하는 메테리얼만 변경
-            {
-                mesh.material.color = Color.blue; // damagedMaterial은 파란색 메테리얼을 가정
-            }
+            mesh.material.color = Color.red;
         }
         yield return new WaitForSeconds(1f);
 
         isDamage = false;
         foreach (MeshRenderer mesh in meshs)
         {
-            if (mesh.name == "Hand" || mesh.name == "Head") // 팔과 머리에 해당하는 메테리얼만 변경
-            {
-                mesh.material.color = Color.white; // defaultMaterial은 기본 색상 메테리얼을 가정
-            }
+            mesh.material.color = Color.white;
         }
     }
 

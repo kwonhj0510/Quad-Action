@@ -7,7 +7,7 @@ using UnityEngine.AI;
 
 public class Enemy : MonoBehaviour
 {
-    public enum Type { A, B, C};
+    public enum Type { A, B, C, D};
     public Type enemyType;
     public int maxHealth;
     public int curHealth;
@@ -17,22 +17,23 @@ public class Enemy : MonoBehaviour
     public bool isChase;
     public bool isAttack;
 
-    Rigidbody rigid;
-    BoxCollider boxCollider;
-    Material mat;
-    NavMeshAgent nav;
-    Animator anim;
+    public Rigidbody rigid;
+    public BoxCollider boxCollider;
+    public MeshRenderer[] meshs;
+    public NavMeshAgent nav;
+    public Animator anim;
 
 
     private void Awake()
     {
         rigid = GetComponent<Rigidbody>();
-        boxCollider = GetComponent<BoxCollider>();  
-        mat = GetComponentInChildren<MeshRenderer>().material;
+        boxCollider = GetComponent<BoxCollider>();
+        meshs = GetComponentsInChildren<MeshRenderer>();
         nav = GetComponent<NavMeshAgent>();
         anim = GetComponentInChildren<Animator>();
 
-        Invoke("ChaseStart", 2);
+        if(enemyType !=Type.D)
+            Invoke("ChaseStart", 2);
     }
 
 
@@ -44,7 +45,7 @@ public class Enemy : MonoBehaviour
 
     void Update()
     {
-        if(nav.enabled)
+        if(nav.enabled && enemyType != Type.D)
         {
             nav.SetDestination(target.position);
             nav.isStopped = !isChase;
@@ -53,35 +54,39 @@ public class Enemy : MonoBehaviour
 
     void Targeting()
     {
-        float targetRadius = 0;
-        float targetRange = 0;
-
-        switch (enemyType)
+        if(enemyType != Type.D)
         {
-            case Type.A:
-                targetRadius = 1.5f;
-                targetRange = 3f;
-                break;
-            case Type.B:
-                targetRadius = 1f;
-                targetRange = 12f;
-                break;
-            case Type.C:
-                targetRadius = 0.5f;
-                targetRange = 25f;
-                break;
-        }
+            float targetRadius = 0;
+            float targetRange = 0;
 
-        RaycastHit[] raytHits =
-            Physics.SphereCastAll(transform.position,
-                                   targetRadius,
-                                   transform.forward, targetRange,
-                                   LayerMask.GetMask("Player"));
+            switch (enemyType)
+            {
+                case Type.A:
+                    targetRadius = 1.5f;
+                    targetRange = 3f;
+                    break;
+                case Type.B:
+                    targetRadius = 1f;
+                    targetRange = 12f;
+                    break;
+                case Type.C:
+                    targetRadius = 0.5f;
+                    targetRange = 25f;
+                    break;
+            }
 
-        if(raytHits.Length > 0 && !isAttack)
-        {
-            StartCoroutine(Attack());
+            RaycastHit[] raytHits =
+                Physics.SphereCastAll(transform.position,
+                                       targetRadius,
+                                       transform.forward, targetRange,
+                                       LayerMask.GetMask("Player"));
+
+            if (raytHits.Length > 0 && !isAttack)
+            {
+                StartCoroutine(Attack());
+            }
         }
+        
     }
 
     IEnumerator Attack()
@@ -94,21 +99,25 @@ public class Enemy : MonoBehaviour
         {
             case Type.A:
                 yield return new WaitForSeconds(0.2f);
-                meleeArea.enabled = true;
+                if (meleeArea != null)
+                    meleeArea.enabled = true;
 
                 yield return new WaitForSeconds(1f);
-                meleeArea.enabled = false;
+                if (meleeArea != null)
+                    meleeArea.enabled = false;
 
                 yield return new WaitForSeconds(1f);
                 break;
             case Type.B:
                 yield return new WaitForSeconds(0.1f);
                 rigid.AddForce(transform.forward * 20, ForceMode.Impulse);
-                meleeArea.enabled = true;
+                if (meleeArea != null)
+                    meleeArea.enabled = true;
 
                 yield return new WaitForSeconds(0.5f);
                 rigid.velocity = Vector3.zero;
-                meleeArea.enabled = false;
+                if (meleeArea != null)
+                    meleeArea.enabled = false;
 
                 yield return new WaitForSeconds(2f);
                 break;
@@ -119,16 +128,14 @@ public class Enemy : MonoBehaviour
                 rigidBullet.velocity = transform.forward * 20;
 
                 yield return new WaitForSeconds(2f);
-
                 break;
         }
-
-        
 
         isChase = true;
         isAttack = false;
         anim.SetBool("isAttack", false);
     }
+
 
     void FixedUpdate()
     {
@@ -177,16 +184,21 @@ public class Enemy : MonoBehaviour
 
     IEnumerator OnDamage(Vector3 reactVec, bool isGrenade)
     {
-        mat.color = Color.red;
+        foreach(MeshRenderer mesh in meshs)
+            mesh.material.color = Color.red;
+
         yield return new WaitForSeconds(0.1f);
 
         if(curHealth > 0 )
         {
-            mat.color= Color.white;
+            foreach (MeshRenderer mesh in meshs)
+                mesh.material.color = Color.white;
         }
         else
         {
-            mat.color = Color.gray;
+            foreach (MeshRenderer mesh in meshs)
+                mesh.material.color = Color.gray;
+
             gameObject.layer = 12;
             isChase = false;
             nav.enabled = false;
@@ -208,7 +220,8 @@ public class Enemy : MonoBehaviour
                 reactVec += Vector3.up;
                 rigid.AddForce(reactVec * 5, ForceMode.Impulse);
             }
-            Destroy(gameObject, 4);
+            if(enemyType != Type.D)
+                Destroy(gameObject, 4);
         }
     }
 }

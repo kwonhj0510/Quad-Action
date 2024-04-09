@@ -826,16 +826,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enemyType: 3
-  maxHealth: 100
-  curHealth: 100
+  maxHealth: 500
+  curHealth: 500
   target: {fileID: 14966477}
   meleeArea: {fileID: 1767446780}
   bullet: {fileID: 8233989758769261595, guid: 3e538a83f1bb173449602860aec76f2e, type: 3}
   isChase: 0
   isAttack: 0
+  isDead: 0
+  rigid: {fileID: 0}
+  boxCollider: {fileID: 0}
+  meshs: []
+  nav: {fileID: 0}
+  anim: {fileID: 0}
   missile: {fileID: 7683237133703576505, guid: 58477282af07645419d55f0771f8c03f, type: 3}
   missilePortA: {fileID: 1522546955}
   missilePortB: {fileID: 1630766216}
+  isLook: 1
 --- !u!4 &348278798 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7474157755897663167, guid: 8f5e135a19626f544908fc8f156144b9, type: 3}
@@ -1132,6 +1139,12 @@ MonoBehaviour:
   bullet: {fileID: 3346327547838705414, guid: 7211ae9ba68518c41a4d58e25e47832f, type: 3}
   isChase: 0
   isAttack: 0
+  isDead: 0
+  rigid: {fileID: 0}
+  boxCollider: {fileID: 0}
+  meshs: []
+  nav: {fileID: 0}
+  anim: {fileID: 0}
 --- !u!65 &487295090
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -11790,7 +11803,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
   m_LocalRotation: {x: 0.5, y: 0, z: 0, w: 0.8660254}
-  m_LocalPosition: {x: 0, y: 21, z: -11}
+  m_LocalPosition: {x: 0, y: 26, z: -14}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -11810,7 +11823,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   target: {fileID: 14966477}
-  offset: {x: 0, y: 21, z: -11}
+  offset: {x: 0, y: 27, z: -17}
 --- !u!1 &979422532
 GameObject:
   m_ObjectHideFlags: 0
@@ -17356,7 +17369,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9133255185617633366, guid: 83dab506297948d4d8d34c4fe12431ee, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: 39.73
       objectReference: {fileID: 0}
     - target: {fileID: 9133255185617633366, guid: 83dab506297948d4d8d34c4fe12431ee, type: 3}
       propertyPath: m_LocalRotation.w
@@ -22757,8 +22770,9 @@ GameObject:
   m_Component:
   - component: {fileID: 1767446779}
   - component: {fileID: 1767446780}
+  - component: {fileID: 1767446781}
   m_Layer: 13
-  m_Name: Melee Area
+  m_Name: Boss Melee Area
   m_TagString: EnemyBullet
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -22792,6 +22806,21 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 3.5, y: 0.5, z: 3.5}
   m_Center: {x: 0, y: 0.5, z: 0}
+--- !u!114 &1767446781
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1767446778}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec7f78fe28eb2fa47b76fec86533cdbd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  damage: 25
+  isMelee: 1
+  isRock: 0
 --- !u!1 &1791607344 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 328409505970683906, guid: 464cc7c4f7ea10b47a36d7848aa9ca9a, type: 3}
@@ -22817,6 +22846,12 @@ MonoBehaviour:
   bullet: {fileID: 0}
   isChase: 0
   isAttack: 0
+  isDead: 0
+  rigid: {fileID: 0}
+  boxCollider: {fileID: 0}
+  meshs: []
+  nav: {fileID: 0}
+  anim: {fileID: 0}
 --- !u!65 &1791607346
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -23070,7 +23105,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3320669544841490502, guid: 06d503bba93001142b96e3510906db62, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3320669544841490502, guid: 06d503bba93001142b96e3510906db62, type: 3}
       propertyPath: m_TagString
@@ -23456,6 +23491,12 @@ MonoBehaviour:
   bullet: {fileID: 0}
   isChase: 0
   isAttack: 0
+  isDead: 0
+  rigid: {fileID: 0}
+  boxCollider: {fileID: 0}
+  meshs: []
+  nav: {fileID: 0}
+  anim: {fileID: 0}
 --- !u!195 &2126117671
 NavMeshAgent:
   m_ObjectHideFlags: 0

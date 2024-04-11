@@ -311,7 +311,7 @@ public class Player : MonoBehaviour
         }
     }
 
-    void OnTriggerEnter(Collider other)
+    void OnTriggerEnter(Collider other) // 부딪힌 객체의 정보를 other에 저장
     {
         if (other.tag == "Item")
         {
@@ -351,13 +351,13 @@ public class Player : MonoBehaviour
         { 
             if(!isDamage)
             {
-                Bullet enemyBullet = other.GetComponent<Bullet>();
+                Bullet enemyBullet = other.GetComponent<Bullet>(); // other(부딪힌 객체)의 bullet이라는 컴포넌트를 가져옴
                 health -= enemyBullet.damage;
 
                 bool isBossAtk = other.name == "Boss Melee Area";
                 StartCoroutine(OnDamage(isBossAtk));
             }
-            if (other.GetComponent<Bullet>() != null)
+            if (other.GetComponent<Bullet>() != null) // other(부딪힌 객체)에 bullet이라는 컴포넌트가 있을
                 Destroy(other.gameObject);
         }
     }

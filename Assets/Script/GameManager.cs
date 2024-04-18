@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -27,6 +28,7 @@ public class GameManager : MonoBehaviour
 
     public GameObject menuPanel;
     public GameObject gamePanel;
+    public GameObject overPanel;
     public TextMeshProUGUI maxScoreTxt;
     public TextMeshProUGUI scoreTxt;
     public TextMeshProUGUI stageTxt;
@@ -43,11 +45,16 @@ public class GameManager : MonoBehaviour
     public TextMeshProUGUI enemyCTxt;
     public RectTransform bossHealthGroup;
     public RectTransform bossHealthBar;
+    public TextMeshProUGUI curScoreText;
+    public TextMeshProUGUI bestText;
 
     private void Awake()
     {
         enemyList= new List<int>();
         maxScoreTxt.text = string.Format("{0:n0}", PlayerPrefs.GetInt("MaxScore"));
+
+        if (PlayerPrefs.HasKey("MaxScore"))
+            PlayerPrefs.SetInt("MaxScore", 0);
     }
     public void GameStart()
     {
@@ -59,6 +66,23 @@ public class GameManager : MonoBehaviour
 
         player.gameObject.SetActive(true);
 
+    }public void GameOver()
+    {
+        gamePanel.SetActive(false);
+        overPanel.SetActive(true);
+        curScoreText.text = scoreTxt.text;
+
+        int maxScore = PlayerPrefs.GetInt("MaxScore");
+        if(player.score > maxScore) 
+        {
+            bestText.gameObject.SetActive(true);
+            PlayerPrefs.SetInt("MaxScore", player.score);
+        }
+    }
+
+    public void Restart()
+    {
+        SceneManager.LoadScene(0);
     }
 
     public void StageStart()
@@ -94,7 +118,7 @@ public class GameManager : MonoBehaviour
         if(stage % 5  == 0)
         {
             enemyCntD++;
-            GameObject instantEnemy = Instantiate(enemies[enemyList[3]], enemyZones[0].position, enemyZones[0].rotation);
+            GameObject instantEnemy = Instantiate(enemies[3], enemyZones[0].position, enemyZones[0].rotation);
             Enemy enemy = instantEnemy.GetComponent<Enemy>();
             enemy.target = player.transform;
             enemy.manager = this;
@@ -139,6 +163,8 @@ public class GameManager : MonoBehaviour
         }
 
         yield return new WaitForSeconds(4f);
+
+        boss = null;
         StageEnd();
     }
 
@@ -175,11 +201,18 @@ public class GameManager : MonoBehaviour
 
         //몬스터 숫자 UI
         enemyATxt.text = enemyCntA.ToString();
-        enemyBTxt.text = enemyCntA.ToString();
-        enemyCTxt.text = enemyCntA.ToString();
+        enemyBTxt.text = enemyCntB.ToString();
+        enemyCTxt.text = enemyCntC.ToString();
         
         //보스 체력 UI
         if(boss != null)
+        {
+            bossHealthGroup.anchoredPosition = Vector3.down * 30;
             bossHealthBar.localScale = new Vector3((float)boss.curHealth / boss.maxHealth, 1, 1);
+        }
+        else
+        {
+            bossHealthGroup.anchoredPosition = Vector3.up * 200;
+        }
     }
 }

@@ -14,6 +14,7 @@ public class Player : MonoBehaviour
     public int hasGrenades;
     public GameObject grenadeObj;
     public Camera followCamera;
+    public GameManager manager;
 
     public int ammo;
     public int coin;
@@ -47,6 +48,8 @@ public class Player : MonoBehaviour
     bool isBorder;
     bool isDamage;
     bool isShop;
+    bool isDead;
+
     Vector3 moveVec;
     Vector3 dodgeVec;
     
@@ -105,7 +108,7 @@ public class Player : MonoBehaviour
         if(isDodge)
             moveVec = dodgeVec;
 
-        if (isSwap || isReload || !isFireReady)
+        if (isSwap || isReload || !isFireReady || isDead)
             moveVec = Vector3.zero; 
         
         if(!isBorder)
@@ -121,7 +124,7 @@ public class Player : MonoBehaviour
         transform.LookAt(transform.position + moveVec);
 
         //#2. 마우스에 의한 회전
-        if (fDown)
+        if (fDown && !isDead)
         {
             Ray ray = followCamera.ScreenPointToRay(Input.mousePosition);
             RaycastHit rayHit;
@@ -137,7 +140,7 @@ public class Player : MonoBehaviour
 
     void Jump()
     {
-        if(jDown && moveVec == Vector3.zero && !isJump && !isDodge && !isSwap)
+        if(jDown && moveVec == Vector3.zero && !isJump && !isDodge && !isSwap && !isDead)
         {
             rigid.AddForce(Vector3.up * jumpPower, ForceMode.Impulse);
             anim.SetBool("isJump", true);
@@ -151,7 +154,7 @@ public class Player : MonoBehaviour
         if (hasGrenades == 0)
             return;
 
-        if(gDown && !isReload && !isSwap)
+        if(gDown && !isReload && !isSwap && !isDead)
         {
             Ray ray = followCamera.ScreenPointToRay(Input.mousePosition);
             RaycastHit rayHit;
@@ -181,7 +184,7 @@ public class Player : MonoBehaviour
         fireDelay += Time.deltaTime;
         isFireReady = equipWeapon.rate < fireDelay;
 
-        if (fDown && isFireReady && !isDodge && !isSwap && !isShop) 
+        if (fDown && isFireReady && !isDodge && !isSwap && !isShop && !isDead) 
         {
             equipWeapon.Use();
             anim.SetTrigger(equipWeapon.type == Weapon.Type.Melee ? "doSwing" : "doShot");
@@ -201,7 +204,7 @@ public class Player : MonoBehaviour
         if (ammo == 0) 
             return;
 
-        if(rDown && !isJump && !isDodge && !isSwap && isFireReady && !isShop)
+        if(rDown && !isJump && !isDodge && !isSwap && isFireReady && !isShop && !isDead)
         {
             anim.SetTrigger("doReload");
             isReload = true;
@@ -220,7 +223,7 @@ public class Player : MonoBehaviour
 
     void Dodge()
     {
-        if (jDown && moveVec != Vector3.zero && !isJump && !isDodge && !isSwap && !isShop)
+        if (jDown && moveVec != Vector3.zero && !isJump && !isDodge && !isSwap && !isShop && !isDead)
         {
             dodgeVec = moveVec;
             speed *= 2;
@@ -251,7 +254,7 @@ public class Player : MonoBehaviour
         if (sDown2) weaponIndex = 1;
         if (sDown3) weaponIndex = 2;
 
-        if((sDown1 || sDown2 || sDown3) && !isJump && !isDodge && !isShop)
+        if((sDown1 || sDown2 || sDown3) && !isJump && !isDodge && !isShop && !isDead)
         {
 
             if(equipWeapon != null) 
@@ -276,7 +279,7 @@ public class Player : MonoBehaviour
 
     void Interation()
     {
-        if(iDown && nearObject != null && !isJump && !isDodge && !isShop)
+        if(iDown && nearObject != null && !isJump && !isDodge && !isShop && !isDead)
         {
             if(nearObject.tag == "Weapon")
             {
@@ -367,7 +370,7 @@ public class Player : MonoBehaviour
                 bool isBossAtk = other.name == "Boss Melee Area";
                 StartCoroutine(OnDamage(isBossAtk));
             }
-            if (other.GetComponent<Bullet>() != null) // other(부딪힌 객체)에 bullet이라는 컴포넌트가 있을
+            if (other.GetComponent<Rigidbody>() != null) // other(부딪힌 객체)에 bullet이라는 컴포넌트가 있을
                 Destroy(other.gameObject);
         }
     }
@@ -382,36 +385,70 @@ public class Player : MonoBehaviour
         if (isBossAtk)
             rigid.AddForce(transform.forward * -25, ForceMode.Impulse);
 
-        yield return new WaitForSeconds(1f);
+        if (health <= 0 && !isDead)
+            OnDie();
 
-        if (isBossAtk)
-            rigid.velocity = Vector3.zero;
+        yield return new WaitForSeconds(1f);
 
         isDamage = false;
         foreach (MeshRenderer mesh in meshs)
         {
             mesh.material.color = Color.white;
         }
+
+        if (isBossAtk)
+            rigid.velocity = Vector3.zero;
+
+        
     }
+
+    void OnDie()
+    {
+         anim.SetTrigger("doDie");
+         isDead = true;
+         manager.GameOver();
+    }
+
+    //void OnTriggerStay(Collider other)
+    //{
+    //    if (other.tag == "Weapon" || other.tag == "Shop")
+    //        nearObject = other.gameObject;
+
+    //    //Debug.Log(nearObject.name);
+    //}
+    // void OnTriggerExit(Collider other)
+    //{
+    //    if (other.tag == "Weapon")
+    //        nearObject = null;
+    //    else if (other.tag == "Shop") 
+    //    {
+    //        Shop shop = nearObject.GetComponent<Shop>();
+    //        shop.Exit();
+    //        isShop = false;
+    //        nearObject = null;
+
+    //    }
+    //}
 
     void OnTriggerStay(Collider other)
     {
-        if (other.tag == "Weapon" || other.tag == "Item" || other.tag == "Shop")
-            nearObject = other.gameObject;
-
-        //Debug.Log(nearObject.name);
+        nearObject = other.gameObject;
     }
-     void OnTriggerExit(Collider other)
-    {
-        if (other.tag == "Weapon" || other.tag == "Item")
-            nearObject = null;
-        else if (other.tag == "Shop") 
-        {
-            Shop shop = nearObject.GetComponent<Shop>();
-            shop.Exit();
-            isShop = false;
-            nearObject = null;
 
+    void OnTriggerExit(Collider other)
+    {
+        if (nearObject != null)
+        {
+            if (nearObject.tag == "Shop")
+            {
+                Shop shop = nearObject.GetComponent<Shop>();
+                if (shop != null)
+                {
+                    shop.Exit();
+                    isShop = false;
+                }
+            }
+            nearObject = null;
         }
     }
 

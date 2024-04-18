@@ -93,7 +93,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   type: 1
-  value: 6
+  value: 100
 --- !u!1 &6910907416851285337
 GameObject:
   m_ObjectHideFlags: 0
